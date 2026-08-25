@@ -6,7 +6,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-Database-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
 
-**Live demo:** [run FreshCart locally](http://localhost:3000) · **Public deployment:** add the Vercel URL after the first production workflow run.
+**Live demo:** [freshcart-grocery-mu.vercel.app](https://freshcart-grocery-mu.vercel.app)
 
 FreshCart lets shoppers browse groceries, save favourites, manage a cart, complete checkout, and review past orders. It also includes a protected admin area for managing the catalogue, stock, discounts, fulfilment, and user roles.
 
@@ -159,6 +159,8 @@ Add these repository secrets in **Settings → Secrets and variables → Actions
 | `VERCEL_ORG_ID`     | Vercel organisation ID from `.vercel/project.json`.            |
 | `VERCEL_PROJECT_ID` | Vercel project ID from `.vercel/project.json`.                 |
 
+Then add the repository variable `VERCEL_DEPLOY_ENABLED` with value `true` in **Settings → Secrets and variables → Actions → Variables**. This keeps CI green until deployment credentials are intentionally configured.
+
 ### One-time Vercel setup
 
 1. Import the GitHub repository into Vercel as a Next.js project, or run `npx vercel@latest link` locally after logging in. CI starts its own disposable MongoDB container, so it never needs production database credentials.
@@ -198,7 +200,7 @@ tests/
 - **Catalogue filtering is client-side but URL-persisted.** This keeps the current small catalogue responsive and shareable. Move filtering and pagination into `/api/catalog` as the catalogue grows.
 - **Image hosting uses Unsplash.** Product images should move to owned, optimized media storage before launch.
 - **Resend sandbox limits apply.** Without a verified domain, invoices can only reach the Resend account email configured as `INVOICE_TEST_RECIPIENT`.
-- **A Vercel account is still required for the first release.** Import/link the repository, configure environment variables and GitHub secrets, then replace the local demo link above with the production URL.
+- **A custom domain is not configured yet.** The Vercel URL is suitable for the portfolio; add a custom domain before a public launch.
 
 ## Resume-ready talking points
 
