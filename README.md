@@ -161,7 +161,7 @@ Add these repository secrets in **Settings → Secrets and variables → Actions
 
 ### One-time Vercel setup
 
-1. Import the GitHub repository into Vercel as a Next.js project, or run `vercel link` locally after logging in. CI starts its own disposable MongoDB container, so it never needs production database credentials.
+1. Import the GitHub repository into Vercel as a Next.js project, or run `npx vercel@latest link` locally after logging in. CI starts its own disposable MongoDB container, so it never needs production database credentials.
 2. In Vercel project settings, add the variables from `.env.example` to **Production** and **Preview**. Keep `MONGODB_URI`, `AUTH_SECRET`, and `RESEND_API_KEY` server-only.
 3. Copy the generated organisation and project IDs from `.vercel/project.json` into the GitHub secrets above. The `.vercel` directory is ignored and must never be committed.
 4. Push to `main`. GitHub Actions runs the quality gate first, then deploys the validated Vercel artifact.
