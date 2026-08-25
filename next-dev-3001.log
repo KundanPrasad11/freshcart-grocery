@@ -1,0 +1,15 @@
+
+> freshcart-grocery@1.0.0 dev
+> next dev -p 3001
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3001
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1154ms
+ ○ Compiling /api/catalog ...
+ ✓ Compiled /api/catalog in 667ms (35 modules)
+ GET /api/catalog 200 in 29940ms
+ GET /api/catalog 503 in 42ms
+[?25h

@@ -1,0 +1,195 @@
+
+> freshcart-grocery@1.0.0 dev
+> next dev
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 3s
+ ○ Compiling / ...
+ ✓ Compiled / in 3.6s (529 modules)
+ GET / 200 in 3859ms
+ ○ Compiling /api/invoice ...
+ ✓ Compiled /api/invoice in 2.9s (493 modules)
+ POST /api/invoice 401 in 3328ms
+ GET / 200 in 113ms
+ ✓ Compiled /api/auth/[...nextauth] in 286ms (183 modules)
+ GET /api/auth/session 200 in 1260ms
+ GET /api/auth/session 200 in 67ms
+ ✓ Compiled /api/invoice in 162ms (267 modules)
+ POST /api/invoice 200 in 4358ms
+ GET /api/auth/session 200 in 64ms
+ GET /api/auth/session 200 in 37ms
+ GET /api/auth/session 200 in 85ms
+ GET /api/auth/session 200 in 58ms
+ GET /api/auth/csrf 200 in 48ms
+ POST /api/auth/signout 200 in 20ms
+ ✓ Compiled / in 327ms (411 modules)
+ GET / 200 in 607ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 648ms (672 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 862ms
+ ✓ Compiled /api/catalog in 197ms (414 modules)
+ ✓ Compiled /auth in 0ms (414 modules)
+ GET /api/auth/session 200 in 473ms
+ ✓ Compiled in 435ms (680 modules)
+ GET /api/auth/session 200 in 631ms
+ GET /api/auth/session 200 in 31ms
+ GET /api/auth/session 200 in 54ms
+ GET /api/catalog 200 in 1643ms
+ GET /api/auth/providers 200 in 66ms
+ GET /api/auth/csrf 200 in 29ms
+ POST /api/auth/callback/credentials? 200 in 799ms
+ GET /api/auth/session 200 in 63ms
+ GET /api/auth/providers 200 in 73ms
+ GET /api/auth/csrf 200 in 21ms
+ POST /api/auth/callback/credentials? 200 in 785ms
+ GET /api/auth/session 200 in 86ms
+ ○ Compiling /api/store ...
+ ✓ Compiled /api/store in 1114ms (769 modules)
+ GET /api/store 200 in 1654ms
+ ○ Compiling /orders ...
+ ✓ Compiled /orders in 601ms (779 modules)
+ ○ Compiling /categories ...
+ ✓ Compiled /categories in 540ms (785 modules)
+ POST /api/store 200 in 586ms
+ POST /api/store 200 in 324ms
+ ○ Compiling /cart ...
+ ✓ Compiled /cart in 920ms (789 modules)
+ ○ Compiling /checkout ...
+ ✓ Compiled /checkout in 643ms (792 modules)
+{"level":"info","event":"order.created","orderId":"FC-698052E2","userId":"d416581c-ca2c-4d6c-af5d-fd2ede37c47a","total":287}
+ POST /api/store 200 in 448ms
+ ✓ Compiled /api/invoice in 262ms (519 modules)
+ POST /api/invoice 200 in 1389ms
+ ✓ Compiled in 314ms (277 modules)
+ ✓ Compiled in 459ms (553 modules)
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1789ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 898ms (184 modules)
+ GET /api/auth/session 200 in 1708ms
+ GET /api/auth/session 200 in 27ms
+ ✓ Compiled /api/catalog in 71ms (36 modules)
+ GET /api/catalog 200 in 1268ms
+ ○ Compiling /products ...
+ ✓ Compiled /products in 2.8s (560 modules)
+ GET /products 200 in 3004ms
+ ✓ Compiled /api/auth/[...nextauth] in 99ms (284 modules)
+ ✓ Compiled (430 modules)
+ GET /api/auth/session 200 in 324ms
+ GET /api/auth/session 200 in 18ms
+ GET /api/auth/session 200 in 22ms
+ GET /api/auth/session 200 in 21ms
+ GET /api/catalog 200 in 668ms
+ GET /products 200 in 60ms
+ GET /api/auth/session 200 in 29ms
+ GET /api/catalog 200 in 44ms
+ GET /api/auth/session 200 in 19ms
+ GET /api/auth/session 200 in 10ms
+ GET /api/auth/session 200 in 10ms
+ GET /products 200 in 48ms
+ GET /api/auth/session 200 in 23ms
+ GET /api/auth/session 200 in 23ms
+ GET /api/auth/session 200 in 7ms
+ GET /api/auth/session 200 in 7ms
+ GET /products 200 in 49ms
+ GET /api/auth/session 200 in 20ms
+ GET /api/auth/session 200 in 23ms
+ GET /api/auth/session 200 in 7ms
+ GET /api/auth/session 200 in 8ms
+ ✓ Compiled in 248ms (701 modules)
+ GET /products 200 in 75ms
+ GET /api/auth/session 200 in 44ms
+ GET /api/auth/session 200 in 45ms
+ GET /api/auth/session 200 in 8ms
+ GET /api/auth/session 200 in 10ms
+ GET /products 200 in 23ms
+ GET /api/auth/session 200 in 23ms
+ GET /api/auth/session 200 in 23ms
+ GET /api/auth/session 200 in 8ms
+ GET /api/auth/session 200 in 10ms
+ GET /products?local=1 200 in 49ms
+ GET /api/auth/session 200 in 18ms
+ GET /api/auth/session 200 in 20ms
+ GET /api/auth/session 200 in 7ms
+ GET /api/auth/session 200 in 11ms
+ ✓ Compiled in 219ms (546 modules)
+ ✓ Compiled in 116ms (546 modules)
+ ✓ Compiled in 138ms (560 modules)
+ GET /products 200 in 84ms
+ ✓ Compiled /api/auth/[...nextauth] in 54ms (428 modules)
+ GET /api/auth/session 200 in 166ms
+ GET /api/auth/session 200 in 168ms
+ GET /api/auth/session 200 in 7ms
+ GET /api/auth/session 200 in 12ms
+ GET /products 200 in 61ms
+ GET /api/auth/session 200 in 19ms
+ GET /api/auth/session 200 in 20ms
+ GET /api/auth/session 200 in 8ms
+ GET /api/auth/session 200 in 10ms
+ GET /products?local=1 200 in 31ms
+ GET /api/auth/session 200 in 25ms
+ GET /api/auth/session 200 in 26ms
+ GET /api/auth/session 200 in 8ms
+ GET /api/auth/session 200 in 8ms
+ ✓ Compiled /api/catalog in 116ms (430 modules)
+ GET /api/catalog 200 in 771ms
+ ✓ Compiled in 127ms (717 modules)
+ GET /products 200 in 74ms
+ GET /api/auth/session 200 in 35ms
+ GET /api/auth/session 200 in 39ms
+ GET /api/auth/session 200 in 7ms
+ GET /api/auth/session 200 in 9ms
+ GET /products 200 in 54ms
+ GET /api/auth/session 200 in 19ms
+ GET /api/auth/session 200 in 21ms
+ GET /api/auth/session 200 in 10ms
+ GET /api/auth/session 200 in 10ms
+ GET /products?local=1 200 in 59ms
+ GET /api/auth/session 200 in 20ms
+ GET /api/auth/session 200 in 27ms
+ GET /api/auth/session 200 in 8ms
+ GET /api/auth/session 200 in 13ms
+ ✓ Compiled in 119ms (715 modules)
+ GET /api/auth/session 200 in 72ms
+ GET /api/auth/session 200 in 9ms
+ ○ Compiling / ...
+ ✓ Compiled / in 614ms (707 modules)
+ GET / 200 in 113ms
+ ✓ Compiled /api/auth/[...nextauth] in 180ms (288 modules)
+ ✓ Compiled (434 modules)
+ GET /api/auth/session 200 in 570ms
+ ✓ Compiled in 341ms (434 modules)
+ GET /api/catalog 200 in 724ms
+ GET /api/auth/session 200 in 339ms
+ GET /api/auth/session 200 in 14ms
+ GET /api/auth/session 200 in 37ms
+ GET /products 200 in 146ms
+ GET /api/auth/session 200 in 24ms
+ GET /api/auth/session 200 in 10ms
+ GET /api/auth/session 200 in 19ms
+ GET /api/auth/session 200 in 11ms
+ GET /products 200 in 63ms
+ GET /api/auth/session 200 in 25ms
+ GET /api/auth/session 200 in 9ms
+ GET /api/auth/session 200 in 14ms
+ GET /api/auth/session 200 in 16ms
+ GET /api/auth/session 200 in 8ms
+ GET /api/auth/session 200 in 10ms
+ GET /api/auth/session 200 in 95ms
+ GET /api/auth/session 200 in 13ms
+ GET /api/auth/session 200 in 37ms
+ GET /api/auth/session 200 in 10ms
+ GET /api/auth/session 200 in 24ms
+ GET /api/auth/session 200 in 11ms
+ GET /api/auth/session 200 in 29ms
+ GET /api/auth/session 200 in 10ms
+ GET /api/auth/session 200 in 32ms
+ GET /api/auth/session 200 in 15ms

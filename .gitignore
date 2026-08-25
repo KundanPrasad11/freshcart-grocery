@@ -1,0 +1,10 @@
+node_modules
+.next
+.env.local
+coverage
+playwright-report
+test-results
+.next-e2e
+.vercel
+.agents/
+.codex/

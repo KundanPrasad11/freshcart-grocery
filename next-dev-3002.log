@@ -1,0 +1,139 @@
+
+> freshcart-grocery@1.0.0 dev
+> next dev -p 3002
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3002
+  - Environments: .env.local
+
+ ✓ Starting...
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+ ✓ Ready in 1473ms
+ ○ Compiling /api/catalog ...
+ ✓ Compiled /api/catalog in 533ms (35 modules)
+{"level":"info","event":"database.catalog_seeded","products":22}
+ GET /api/catalog 200 in 2970ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1967ms (539 modules)
+ GET / 200 in 2097ms
+ ✓ Compiled /api/auth/[...nextauth] in 368ms (413 modules)
+ GET /api/catalog 200 in 557ms
+ GET /api/auth/session 200 in 935ms
+ GET /api/auth/session 200 in 29ms
+ GET /api/catalog 200 in 973ms
+ GET /api/auth/session 200 in 12ms
+ GET /api/auth/session 200 in 10ms
+ GET /api/catalog 200 in 79ms
+ GET / 200 in 149ms
+ GET /api/catalog 200 in 84ms
+ GET /api/catalog 200 in 84ms
+ GET /api/auth/session 200 in 82ms
+ GET /api/auth/session 200 in 19ms
+ GET /api/auth/session 200 in 34ms
+ GET /api/catalog 200 in 55ms
+ GET /api/auth/session 200 in 25ms
+ ✓ Compiled /_not-found in 355ms (674 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 524ms
+ GET / 200 in 65ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 42ms
+ GET /api/auth/session 200 in 121ms
+ GET /api/auth/session 200 in 27ms
+ GET /api/auth/session 200 in 19ms
+ GET /api/catalog 200 in 208ms
+ GET /api/catalog 200 in 216ms
+ GET /api/catalog 200 in 83ms
+ GET /api/auth/session 200 in 15ms
+ ○ Compiling /auth ...
+ ✓ Compiled /auth in 555ms (680 modules)
+ GET /api/auth/providers 200 in 119ms
+ GET /api/auth/csrf 200 in 18ms
+ POST /api/auth/callback/credentials? 200 in 248ms
+ GET /api/auth/session 200 in 16ms
+ GET /api/auth/providers 200 in 39ms
+ GET /api/auth/csrf 200 in 18ms
+ POST /api/auth/callback/credentials? 200 in 115ms
+ GET /api/auth/session 200 in 22ms
+ ○ Compiling /api/auth/register ...
+ ✓ Compiled /api/auth/register in 879ms (498 modules)
+{"level":"info","event":"user.created","userId":"d416581c-ca2c-4d6c-af5d-fd2ede37c47a","role":"customer"}
+ POST /api/auth/register 201 in 2359ms
+ GET /api/auth/providers 200 in 80ms
+ GET /api/auth/csrf 200 in 21ms
+ POST /api/auth/callback/credentials? 200 in 758ms
+ GET /api/auth/session 200 in 49ms
+ ○ Compiling /api/store ...
+ ✓ Compiled /api/store in 818ms (768 modules)
+ GET /api/store 401 in 946ms
+ GET /api/catalog 200 in 1365ms
+ POST /api/store 401 in 23ms
+ ✓ Compiled /_not-found in 332ms (771 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 553ms
+ POST /api/store 401 in 44ms
+ GET /api/auth/session 200 in 54ms
+ GET /api/auth/session 200 in 24ms
+ GET / 200 in 75ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 39ms
+ GET /api/auth/session 200 in 66ms
+ GET /api/auth/session 200 in 30ms
+ GET /api/store 401 in 54ms
+ GET /api/auth/session 200 in 42ms
+ GET /api/auth/session 200 in 18ms
+ GET /api/catalog 200 in 129ms
+ GET /api/catalog 200 in 230ms
+ GET /api/catalog 200 in 231ms
+ GET /api/auth/session 200 in 49ms
+ GET /api/auth/session 200 in 23ms
+ ✓ Compiled in 306ms (265 modules)
+ ✓ Compiled in 914ms (527 modules)
+ ✓ Compiled /api/store in 221ms (275 modules)
+ ✓ Compiled (502 modules)
+ GET /api/catalog 200 in 927ms
+ ✓ Compiled /_not-found in 349ms (767 modules)
+ GET /api/store 404 in 1212ms
+ GET /api/store 404 in 1217ms
+ ✓ Compiled /api/auth/[...nextauth] in 439ms (419 modules)
+ GET /api/auth/session 200 in 611ms
+ GET /api/auth/session 200 in 280ms
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 2s (908 modules)
+ GET / 200 in 144ms
+ ✓ Compiled /_not-found in 285ms (911 modules)
+ GET /_next/static/css/app/layout.css?v=1787647365612 404 in 461ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 420ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 427ms
+ GET /_next/static/chunks/app/layout.js 404 in 428ms
+ GET /_next/static/chunks/app/page.js 404 in 427ms
+ GET /_next/static/chunks/main-app.js?v=1787647365612 404 in 427ms
+ GET / 200 in 100ms
+ GET /_next/static/css/app/layout.css?v=1787647369682 404 in 65ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 78ms
+ GET /_next/static/chunks/main-app.js?v=1787647369682 404 in 86ms
+ GET /_next/static/chunks/app/page.js 404 in 83ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 86ms
+ GET /_next/static/chunks/app/layout.js 404 in 78ms
+ GET / 200 in 46ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 78ms
+ GET /_next/static/css/app/layout.css?v=1787647373281 404 in 83ms
+ GET /_next/static/chunks/main-app.js?v=1787647373281 404 in 64ms
+ GET /_next/static/chunks/app/page.js 404 in 64ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 63ms
+ GET /_next/static/chunks/app/layout.js 404 in 59ms
+ GET / 200 in 44ms
+ GET /_next/static/css/app/layout.css?v=1787647377226 404 in 29ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 47ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 84ms
+ GET /_next/static/chunks/main-app.js?v=1787647377226 404 in 83ms
+ GET /_next/static/chunks/app/page.js 404 in 78ms
+ GET /_next/static/chunks/app/layout.js 404 in 82ms
+ GET / 200 in 72ms
+ GET /_next/static/css/app/layout.css?v=1787647392033 404 in 73ms
+ GET /_next/static/chunks/main-app.js?v=1787647392033 404 in 70ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 73ms
+ GET /_next/static/chunks/app/page.js 404 in 72ms
+ GET /_next/static/chunks/app/layout.js 404 in 73ms
+ GET / 200 in 42ms
+[?25h

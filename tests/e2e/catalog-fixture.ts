@@ -1,0 +1,45 @@
+export const catalogFixture = {
+  categories: [
+    { id: "dairy-eggs", name: "Dairy & Eggs", emoji: "🥛", description: "Farm-fresh staples" },
+  ],
+  products: [
+    {
+      id: "milk",
+      slug: "grass-fed-whole-milk",
+      name: "Farm Fresh Whole Milk",
+      category: "Dairy & Eggs",
+      price: 72,
+      originalPrice: null,
+      rating: 4.9,
+      reviews: 88,
+      unit: "1 litre",
+      badge: "Local dairy",
+      image:
+        "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=900&q=80",
+      description: "Rich whole milk from local dairies.",
+      ingredients: "Pasteurized whole milk",
+      nutrition: "8g protein per serving",
+      inStock: true,
+      featured: true,
+    },
+    {
+      id: "avocado-hass",
+      slug: "organic-hass-avocados",
+      name: "Organic Hass Avocados",
+      category: "Dairy & Eggs",
+      price: 349,
+      originalPrice: null,
+      rating: 4.8,
+      reviews: 124,
+      unit: "4 count",
+      badge: "Organic",
+      image:
+        "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=900&q=80",
+      description: "Creamy, perfectly ripe Hass avocados.",
+      ingredients: "Organic Hass avocados",
+      nutrition: "High in healthy fats",
+      inStock: true,
+      featured: true,
+    },
+  ],
+};

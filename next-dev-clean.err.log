@@ -1,0 +1,27 @@
+[31m[auth][error][0m CredentialsSignin: Read more at https://errors.authjs.dev#credentialssignin
+    at Module.callback (webpack-internal:///(rsc)/./node_modules/@auth/core/lib/actions/callback/index.js:246:23)
+    at async AuthInternal (webpack-internal:///(rsc)/./node_modules/@auth/core/lib/index.js:70:24)
+    at async Auth (webpack-internal:///(rsc)/./node_modules/@auth/core/index.js:130:34)
+    at async C:\Users\prasa\dev\E-commerce\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:6:57228
+    at async eT.execute (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:6:46851)
+    at async eT.handle (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:6:58760)
+    at async doRender (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\base-server.js:1576:40)
+    at async DevServer.renderToResponseWithComponentsImpl (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\base-server.js:1496:28)
+    at async DevServer.renderPageComponent (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\base-server.js:1962:32)
+    at async DevServer.pipeImpl (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\next-server.js:272:17)
+    at async DevServer.handleRequestImpl (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\base-server.js:818:17)
+    at async C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\dev\next-dev-server.js:339:20
+    at async Span.traceAsyncFn (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\trace\trace.js:154:20)
+    at async DevServer.handleRequest (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\dev\next-dev-server.js:336:24)
+    at async invokeRender (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\lib\router-server.js:179:21)
+    at async handleRequest (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\lib\router-server.js:359:24)
+    at async requestHandlerImpl (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\lib\router-server.js:383:13)
+    at async Server.requestListener (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\lib\start-server.js:141:13)
+ ⚠ Found a change in next.config.mjs. Restarting the server to apply the changes...
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1546470427-227c7360f3d8?auto=format&fit=crop&w=900&q=80 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1546470427-227c7360f3d8?auto=format&fit=crop&w=900&q=80 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1546470427-227c7360f3d8?auto=format&fit=crop&w=900&q=80 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1546470427-227c7360f3d8?auto=format&fit=crop&w=900&q=80 404

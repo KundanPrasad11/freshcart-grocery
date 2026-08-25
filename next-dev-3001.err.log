@@ -1,0 +1,3 @@
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: Unable to snapshot resolve dependencies
+{"level":"error","event":"catalog.read_failed","message":"connect EACCES 159.41.197.14:27017"}
+{"level":"error","event":"catalog.read_failed","message":"connect EACCES 159.41.197.14:27017"}
