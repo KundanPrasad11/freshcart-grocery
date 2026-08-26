@@ -11,17 +11,30 @@ import {
 } from "react";
 import { useSession } from "next-auth/react";
 import { CartItem, Category, Product } from "@/lib/catalog";
+import { OrderLineSnapshot } from "@/lib/models";
 
 export type Order = {
   id: string;
   date: string;
   items: CartItem[];
+  lines?: OrderLineSnapshot[];
+  lineItems?: OrderLineSnapshot[];
   total: number;
   status: "Processing" | "Packed" | "Out for delivery" | "Delivered" | "Cancelled";
   address: string;
+  delivery?: {
+    address: string;
+    instructions?: string;
+    slot: { id: string; label: string; startsAt: string; endsAt: string; timezone: string };
+  };
+  payment?: { provider: "stripe"; status: "pending" | "paid" | "failed" | "refund_pending" | "refunded" };
+  fulfillmentStatus?: "awaiting_payment" | "processing" | "packed" | "out_for_delivery" | "delivered" | "cancelled";
+  statusHistory?: { from: string | null; to: string; at: string; actor: string; reason?: string }[];
+  reservation?: { status: "active" | "released" | "expired" | "consumed"; expiresAt?: string };
 };
+export type DeliverySlot = { id: string; label: string; startsAt: string; endsAt: string; timezone: string };
 type User = { name: string; email: string };
-type ServerState = { cart: CartItem[]; wishlist: string[]; orders: Order[] };
+type ServerState = { cart: CartItem[]; wishlist: string[]; orders: Order[]; deliverySlots: DeliverySlot[] };
 type Store = ServerState & {
   products: Product[];
   categories: Category[];
@@ -31,7 +44,9 @@ type Store = ServerState & {
   updateQuantity: (id: string, quantity: number) => Promise<void>;
   removeFromCart: (id: string) => Promise<void>;
   toggleWishlist: (id: string) => Promise<void>;
-  placeOrder: (address: string, discountCode?: string) => Promise<Order | null>;
+  placeOrder: (delivery: { address: string; instructions?: string; slotId: string }, idempotencyKey: string, discountCode?: string) => Promise<Order | null>;
+  cancelOrder: (orderId: string, reason?: string) => Promise<string | null>;
+  reorderOrder: (orderId: string) => Promise<{ unavailable: string[]; error?: string }>;
 };
 const StoreContext = createContext<Store | null>(null);
 type CatalogResponse = { products: Product[]; categories: Category[] };
@@ -55,7 +70,7 @@ function fetchCatalog() {
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const { data: session, status } = useSession();
-  const [state, setState] = useState<ServerState>({ cart: [], wishlist: [], orders: [] });
+  const [state, setState] = useState<ServerState>({ cart: [], wishlist: [], orders: [], deliverySlots: [] });
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [ready, setReady] = useState(false);
@@ -82,7 +97,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (stateRequest) {
         const stateResponse = await stateRequest;
         if (stateResponse.ok) setState((await stateResponse.json()) as ServerState);
-      } else setState({ cart: [], wishlist: [], orders: [] });
+      } else setState({ cart: [], wishlist: [], orders: [], deliverySlots: [] });
     } finally {
       setReady(status !== "loading");
     }
@@ -124,14 +139,38 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       toggleWishlist: async (productId) => {
         await action({ action: "wishlist:toggle", productId });
       },
-      placeOrder: async (address, discountCode) =>
+      placeOrder: async (address, idempotencyKey, discountCode) =>
         (
           await action({
             action: "order:create",
-            address,
+            address: address.address,
+            delivery: { slotId: address.slotId, ...(address.instructions ? { instructions: address.instructions } : {}) },
+            idempotencyKey,
             ...(discountCode ? { discountCode } : {}),
           })
         )?.orders[0] ?? null,
+      cancelOrder: async (orderId, reason) => {
+        const response = await fetch("/api/store", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "order:cancel", orderId, ...(reason ? { reason } : {}) }),
+        });
+        const body = await response.json();
+        if (!response.ok) return body.error ?? "Could not cancel this order.";
+        setState(body.state as ServerState);
+        return body.refundPending ? "Refund requested. The cancellation will finish once Stripe confirms it." : null;
+      },
+      reorderOrder: async (orderId) => {
+        const response = await fetch("/api/store", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "order:reorder", orderId }),
+        });
+        const body = await response.json();
+        if (!response.ok) return { unavailable: [], error: body.error ?? "Could not reorder this order." };
+        setState(body.state as ServerState);
+        return { unavailable: body.unavailable as string[] };
+      },
     }),
     [state, products, categories, user, ready, action]
   );

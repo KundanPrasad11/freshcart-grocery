@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
-import { Order } from "@/context/store";
+import { DeliverySlot, Order } from "@/context/store";
 import { money, Product } from "@/lib/catalog";
 
 type CheckoutLine = { product: Product; quantity: number };
@@ -10,9 +10,14 @@ type CheckoutLine = { product: Product; quantity: number };
 type CheckoutFormProps = {
   address: string;
   addressError: string;
+  instructions: string;
+  deliverySlots: DeliverySlot[];
+  slotId: string;
   payment: string;
   total: number;
   onAddressChange: (address: string) => void;
+  onInstructionsChange: (instructions: string) => void;
+  onSlotChange: (slotId: string) => void;
   onPaymentChange: (method: string) => void;
   onSubmit: (event: FormEvent) => void;
 };
@@ -20,9 +25,14 @@ type CheckoutFormProps = {
 export function CheckoutForm({
   address,
   addressError,
+  instructions,
+  deliverySlots,
+  slotId,
   payment,
   total,
   onAddressChange,
+  onInstructionsChange,
+  onSlotChange,
   onPaymentChange,
   onSubmit,
 }: CheckoutFormProps) {
@@ -41,8 +51,26 @@ export function CheckoutForm({
       </label>
       {addressError && <div className="notice">{addressError}</div>}
       <label className="field">
+        <span>Delivery time</span>
+        <select required value={slotId} onChange={(event) => onSlotChange(event.target.value)}>
+          <option value="" disabled>
+            {deliverySlots.length ? "Choose a delivery time" : "Loading delivery times…"}
+          </option>
+          {deliverySlots.map((slot) => (
+            <option key={slot.id} value={slot.id}>
+              {slot.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="field">
         <span>Delivery instructions (optional)</span>
-        <input placeholder="Leave at the security desk" />
+        <input
+          maxLength={300}
+          value={instructions}
+          onChange={(event) => onInstructionsChange(event.target.value)}
+          placeholder="Leave at the security desk"
+        />
       </label>
       <h2 className="payment-heading">Payment</h2>
       <div className="payment-options">
@@ -65,9 +93,9 @@ export function CheckoutForm({
       </div>
       {payment === "card" && <CardFields />}
       <button className="button" type="submit">
-        Place order · {money(total)}
+        Reserve order · {money(total)}
       </button>
-      <p className="form-note">Demo payment form — no card information is sent or stored.</p>
+      <p className="form-note">Demo payment form — no card information is sent or stored. Your cart is reserved for payment.</p>
     </form>
   );
 }
@@ -170,11 +198,11 @@ export function CheckoutSuccess({
   return (
     <section className="page">
       <div className="success">
-        <div className="eyebrow">Order confirmed</div>
-        <h1>Thank you for your order.</h1>
+        <div className="eyebrow">Delivery reserved</div>
+        <h1>Your order is reserved.</h1>
         <p>
-          Order <b>{order.id}</b> is in the kitchen. We&apos;ll send delivery updates to{" "}
-          {email ?? "your email"}. Your invoice PDF is ready below.
+          Order <b>{order.id}</b> has a delivery slot reserved. We&apos;ll send updates to{" "}
+          {email ?? "your email"}. Payment is still pending, so inventory has been held—not sold.
         </p>
         <button className="button" onClick={onDownload}>
           Download invoice PDF

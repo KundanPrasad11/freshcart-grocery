@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { cartProducts, Order, useStore } from "@/context/store";
 import { downloadInvoice, emailInvoice } from "@/lib/invoice";
 import { EmptyState } from "@/components/ui";
@@ -11,11 +11,14 @@ import { money } from "@/lib/catalog";
 import { calculateOrderTotals } from "@/lib/order-rules";
 
 export default function CheckoutPage() {
-  const { cart, products, user, placeOrder } = useStore();
+  const { cart, products, user, placeOrder, deliverySlots } = useStore();
   const lines = cartProducts(cart, products);
   const [order, setOrder] = useState<Order | null>(null);
   const [address, setAddress] = useState("");
   const [addressError, setAddressError] = useState("");
+  const [instructions, setInstructions] = useState("");
+  const [slotId, setSlotId] = useState("");
+  const [idempotencyKey] = useState(() => crypto.randomUUID());
   const [payment, setPayment] = useState("card");
   const [emailStatus, setEmailStatus] = useState("");
   const [showPaymentConfirm, setShowPaymentConfirm] = useState(false);
@@ -23,6 +26,10 @@ export default function CheckoutPage() {
   const { subtotal, delivery, total } = calculateOrderTotals(
     lines.map((line) => ({ price: line.product.price, quantity: line.quantity }))
   );
+
+  useEffect(() => {
+    if (!slotId && deliverySlots[0]) setSlotId(deliverySlots[0].id);
+  }, [deliverySlots, slotId]);
 
   const updateAddress = (value: string) => {
     setAddress(value);
@@ -43,11 +50,15 @@ export default function CheckoutPage() {
       setAddressError("Enter a complete delivery address (at least 10 characters).");
       return;
     }
+    if (!slotId) {
+      setAddressError("Choose an available delivery time.");
+      return;
+    }
     setShowPaymentConfirm(true);
   };
   const confirmPayment = async () => {
     setPlacingOrder(true);
-    const placed = await placeOrder(address);
+    const placed = await placeOrder({ address, instructions, slotId }, idempotencyKey);
     if (!placed) {
       setAddressError(
         "We could not place this order. Please review your delivery address and try again."
@@ -91,9 +102,17 @@ export default function CheckoutPage() {
           <CheckoutForm
             address={address}
             addressError={addressError}
+            instructions={instructions}
+            deliverySlots={deliverySlots}
+            slotId={slotId}
             payment={payment}
             total={total}
             onAddressChange={updateAddress}
+            onInstructionsChange={setInstructions}
+            onSlotChange={(value) => {
+              setSlotId(value);
+              setAddressError("");
+            }}
             onPaymentChange={setPayment}
             onSubmit={requestPaymentConfirmation}
           />
@@ -102,14 +121,14 @@ export default function CheckoutPage() {
       </section>
       <ConfirmDialog
         open={showPaymentConfirm}
-        title="Confirm your payment"
+        title="Reserve your order"
         description={
           <>
-            You are about to place this order for <strong>{money(total)}</strong>.
+            You are about to reserve this order for <strong>{money(total)}</strong>.
             Your groceries will be delivered to <strong>{address}</strong>.
           </>
         }
-        confirmLabel={`Pay ${money(total)}`}
+        confirmLabel={`Reserve ${money(total)}`}
         onCancel={() => setShowPaymentConfirm(false)}
         onConfirm={() => void confirmPayment()}
         busy={placingOrder}

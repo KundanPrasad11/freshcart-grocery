@@ -14,6 +14,10 @@ function client() {
   return global.mongoClientPromise;
 }
 
+export async function getMongoClient(): Promise<MongoClient> {
+  return client();
+}
+
 export async function getDb(): Promise<Db> {
   return (await client()).db(databaseName());
 }

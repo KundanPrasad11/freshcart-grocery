@@ -3,7 +3,9 @@ import { createInvoicePdf } from "@/lib/invoice-pdf";
 import { Product } from "@/lib/catalog";
 
 export function downloadInvoice(order: Order, products: Product[]) {
-  const url = URL.createObjectURL(new Blob([createInvoicePdf(order, products)], { type: "application/pdf" }));
+  const url = URL.createObjectURL(
+    new Blob([createInvoicePdf(order, products)], { type: "application/pdf" })
+  );
   const link = document.createElement("a");
   link.href = url;
   link.download = `${order.id}-invoice.pdf`;

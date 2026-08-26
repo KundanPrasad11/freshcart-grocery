@@ -19,3 +19,38 @@ export function calculateOrderTotals(lines: PricedOrderLine[], discount?: Eligib
   const delivery = subtotal >= DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
   return { subtotal, discount: discountAmount, delivery, total: subtotal + delivery - discountAmount };
 }
+
+/** The only fulfillment transitions available to staff and customer flows. */
+export const fulfillmentTransitions: Record<FulfillmentStatus, readonly FulfillmentStatus[]> = {
+  awaiting_payment: ["processing", "cancelled"],
+  processing: ["packed", "cancelled"],
+  packed: ["out_for_delivery"],
+  out_for_delivery: ["delivered"],
+  delivered: [],
+  cancelled: [],
+};
+
+export function canTransitionFulfillment(from: FulfillmentStatus, to: FulfillmentStatus) {
+  return fulfillmentTransitions[from].includes(to);
+}
+
+/** Legacy presentation status, kept for old readers and documents during rollout. */
+export function legacyOrderStatus(status: FulfillmentStatus): OrderStatus {
+  switch (status) {
+    case "packed":
+      return "Packed";
+    case "out_for_delivery":
+      return "Out for delivery";
+    case "delivered":
+      return "Delivered";
+    case "cancelled":
+      return "Cancelled";
+    default:
+      return "Processing";
+  }
+}
+
+export function isCustomerCancellable(status: FulfillmentStatus) {
+  return status === "awaiting_payment" || status === "processing";
+}
+import { FulfillmentStatus, OrderStatus } from "@/lib/models";

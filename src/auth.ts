@@ -2,8 +2,9 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { findUserByEmail } from "@/lib/store-repository";
-import { rateLimit } from "@/lib/rate-limit";
-import { logError } from "@/lib/logger";
+import { LOGIN_RATE_LIMIT, rateLimit } from "@/lib/rate-limit";
+import { logError, logInfo } from "@/lib/logger";
+import { loginSchema } from "@/lib/schemas";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
@@ -22,19 +23,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, request) {
-        const limited = rateLimit(request as Request, "auth.login", 10, 15 * 60_000);
-        if (limited) return null;
-        const email = String(credentials?.email ?? "")
-          .trim()
-          .toLowerCase();
-        const password = String(credentials?.password ?? "");
-        if (!email || !password) return null;
+        // Auth.js includes its own callback/CSRF fields with a credentials
+        // submission. Validate only the two provider fields, without coercing
+        // arbitrary values into strings.
+        const parsed = loginSchema.safeParse({
+          email: credentials?.email,
+          password: credentials?.password,
+        });
+        if (!parsed.success) return null;
+        const { email, password } = parsed.data;
+        const limit = await rateLimit(request as Request, LOGIN_RATE_LIMIT, email);
+        if (!limit.success) {
+          // Keep the response identical to invalid credentials to prevent account enumeration.
+          logInfo("auth.login_rate_limited", { retryAfter: limit.retryAfter });
+          return null;
+        }
         try {
           const user = await findUserByEmail(email);
           if (!user || !(await bcrypt.compare(password, user.passwordHash))) return null;
           return { id: user.id, name: user.name, email: user.email };
         } catch (error) {
-          logError("auth.login_failed", error, { email });
+          logError("auth.login_failed", error);
           return null;
         }
       },

@@ -1,19 +1,45 @@
 type InvoiceItem = { productId: string; quantity: number };
-type InvoiceOrder = { id: string; date: string; items: InvoiceItem[]; total: number };
+type InvoiceLine = {
+  productId: string;
+  name: string;
+  unitPrice: number;
+  quantity: number;
+  lineTotal: number;
+};
+type InvoiceOrder = {
+  id: string;
+  date: string;
+  items: InvoiceItem[];
+  lines?: InvoiceLine[];
+  lineItems?: InvoiceLine[];
+  total: number;
+};
 import { Product } from "@/lib/catalog";
 
 const escapePdf = (text: string) => text.replace(/[()\\]/g, "\\$&").replace(/[^\x20-\x7E]/g, "");
-export function createInvoicePdf(order: InvoiceOrder, products: Product[]) {
+export function createInvoicePdf(order: InvoiceOrder, products: Product[] = []) {
+  const linesForInvoice =
+    order.lines ??
+    order.lineItems ??
+    order.items.map((item) => {
+      const product = products.find((candidate) => candidate.id === item.productId);
+      return {
+        productId: item.productId,
+        name: product?.name ?? item.productId,
+        unitPrice: product?.price ?? 0,
+        quantity: item.quantity,
+        lineTotal: (product?.price ?? 0) * item.quantity,
+      };
+    });
   const lines = [
     "FRESHCART",
     "Grocery invoice",
     `Order ${order.id}`,
     `Placed ${order.date}`,
     "",
-    ...order.items.map((item) => {
-      const p = products.find((product) => product.id === item.productId)!;
-      return `${item.quantity} x ${p.name}  Rs. ${(p.price * item.quantity).toFixed(0)}`;
-    }),
+    ...linesForInvoice.map(
+      (item) => `${item.quantity} x ${item.name}  Rs. ${item.lineTotal.toFixed(0)}`
+    ),
     "",
     `TOTAL  Rs. ${order.total.toFixed(0)}`,
     "",

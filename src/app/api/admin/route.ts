@@ -1,9 +1,10 @@
 import { auth } from "@/auth";
-import { isResponse, readJson } from "@/lib/http";
-import { logError, logInfo } from "@/lib/logger";
+import { apiError, isResponse, readJson } from "@/lib/http";
+import { createRequestContext, logInfo, logRequestError } from "@/lib/logger";
 import { adminActionSchema } from "@/lib/schemas";
 import {
   adminSetStock,
+  adminUpdateOrderFulfillment,
   adminUpdateOrderStatus,
   adminUpdateUserRole,
   adminUpsertCategory,
@@ -20,33 +21,66 @@ async function adminForRequest() {
   return user?.role === "admin" ? user : null;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const requestContext = createRequestContext(request);
   try {
     const admin = await adminForRequest();
-    if (!admin) return Response.json({ error: "Admin access is required." }, { status: 403 });
-    return Response.json(await getAdminData());
+    if (!admin) return apiError(requestContext, 403, "ADMIN_REQUIRED", "Admin access is required.");
+    return Response.json(await getAdminData(), {
+      headers: { "x-request-id": requestContext.requestId },
+    });
   } catch (error) {
-    logError("admin.read_failed", error);
-    return Response.json({ error: "Admin data is temporarily unavailable." }, { status: 503 });
+    logRequestError("admin.read_failed", error, requestContext);
+    return apiError(
+      requestContext,
+      503,
+      "ADMIN_UNAVAILABLE",
+      "Admin data is temporarily unavailable."
+    );
   }
 }
 
 export async function POST(request: Request) {
+  const requestContext = createRequestContext(request);
   try {
     const admin = await adminForRequest();
-    if (!admin) return Response.json({ error: "Admin access is required." }, { status: 403 });
-    const body = await readJson(request, adminActionSchema);
+    if (!admin) return apiError(requestContext, 403, "ADMIN_REQUIRED", "Admin access is required.");
+    const body = await readJson(request, adminActionSchema, {
+      maxBytes: 16 * 1024,
+      requestContext,
+    });
     if (isResponse(body)) return body;
     if (body.action === "product:upsert") await adminUpsertProduct(body.product);
-    if (body.action === "product:stock") await adminSetStock(body.productId, body.stockQuantity);
+    if (body.action === "product:stock") {
+      const result = await adminSetStock(body.productId, body.stockQuantity);
+      if ("error" in result && result.error)
+        return apiError(requestContext, 409, "STOCK_UPDATE_REJECTED", result.error);
+    }
     if (body.action === "category:upsert") await adminUpsertCategory(body.category);
     if (body.action === "discount:upsert") await adminUpsertDiscount(body.discount);
-    if (body.action === "order:status") await adminUpdateOrderStatus(body.orderId, body.status);
+    if (body.action === "order:status") {
+      const result = await adminUpdateOrderStatus(body.orderId, body.status, admin.id);
+      if ("error" in result && result.error)
+        return apiError(requestContext, 409, "ORDER_TRANSITION_REJECTED", result.error);
+    }
+    if (body.action === "order:fulfillment") {
+      const result = await adminUpdateOrderFulfillment(body.orderId, body.status, admin.id, body.reason);
+      if ("error" in result && result.error)
+        return apiError(requestContext, 409, "ORDER_TRANSITION_REJECTED", result.error);
+    }
     if (body.action === "user:role") await adminUpdateUserRole(body.userId, body.role);
     logInfo("admin.action", { adminId: admin.id, action: body.action });
-    return Response.json({ ok: true });
+    return Response.json(
+      { ok: true, requestId: requestContext.requestId },
+      { headers: { "x-request-id": requestContext.requestId } }
+    );
   } catch (error) {
-    logError("admin.action_failed", error);
-    return Response.json({ error: "Could not save the admin change." }, { status: 503 });
+    logRequestError("admin.action_failed", error, requestContext);
+    return apiError(
+      requestContext,
+      503,
+      "ADMIN_ACTION_UNAVAILABLE",
+      "Could not save the admin change."
+    );
   }
 }

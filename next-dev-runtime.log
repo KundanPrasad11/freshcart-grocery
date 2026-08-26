@@ -1,0 +1,184 @@
+
+> freshcart-grocery@1.0.0 dev
+> next dev --port 3000
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1564ms
+ ✓ Compiled /api/catalog in 282ms (37 modules)
+ GET /api/catalog 200 in 2148ms
+ ○ Compiling /api/store ...
+ ✓ Compiled /api/store in 925ms (271 modules)
+[31m[auth][error][0m JWTSessionError: Read more at https://errors.authjs.dev#jwtsessionerror
+[31m[auth][cause][0m: JWEInvalid: Invalid Compact JWE
+    at decryptCompact (webpack-internal:///(rsc)/./node_modules/jose/dist/webapi/lib/jwe_decrypt.js:198:15)
+    at jwtDecrypt (webpack-internal:///(rsc)/./node_modules/jose/dist/webapi/jwt/decrypt.js:12:96)
+    at Object.decode (webpack-internal:///(rsc)/./node_modules/@auth/core/jwt.js:82:79)
+    at Module.session (webpack-internal:///(rsc)/./node_modules/@auth/core/lib/actions/session.js:30:39)
+    at AuthInternal (webpack-internal:///(rsc)/./node_modules/@auth/core/lib/index.js:51:77)
+    at async Auth (webpack-internal:///(rsc)/./node_modules/@auth/core/index.js:130:34)
+    at async userIdForRequest (webpack-internal:///(rsc)/./src/app/api/store/route.ts:17:13)
+    at async GET (webpack-internal:///(rsc)/./src/app/api/store/route.ts:22:24)
+    at async C:\Users\prasa\dev\E-commerce\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:6:57228
+    at async eT.execute (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:6:46851)
+    at async eT.handle (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:6:58760)
+    at async doRender (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\base-server.js:1366:42)
+    at async cacheEntry.responseCache.get.routeKind (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\base-server.js:1588:28)
+    at async DevServer.renderToResponseWithComponentsImpl (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\base-server.js:1496:28)
+    at async DevServer.renderPageComponent (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\base-server.js:1924:24)
+    at async DevServer.renderToResponseImpl (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\base-server.js:1962:32)
+    at async DevServer.pipeImpl (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\next-server.js:272:17)
+    at async DevServer.handleRequestImpl (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\base-server.js:818:17)
+    at async C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\dev\next-dev-server.js:339:20
+    at async Span.traceAsyncFn (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\trace\trace.js:154:20)
+    at async DevServer.handleRequest (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\dev\next-dev-server.js:336:24)
+    at async invokeRender (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\lib\router-server.js:179:21)
+    at async handleRequest (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\lib\router-server.js:359:24)
+    at async requestHandlerImpl (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\lib\router-server.js:383:13)
+    at async Server.requestListener (C:\Users\prasa\dev\E-commerce\node_modules\next\dist\server\lib\start-server.js:141:13)
+[31m[auth][details][0m: {}
+ GET /api/store 401 in 1083ms
+ ✓ Compiled /api/catalog in 47ms (37 modules)
+ GET /api/catalog 200 in 1227ms
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1546470427-227c7360f3d8?auto=format&fit=crop&w=900&q=80 404
+ ✓ Compiled /api/auth/[...nextauth] in 288ms (270 modules)
+ GET /api/auth/session 200 in 1340ms
+ GET /api/auth/session 200 in 30ms
+ ○ Compiling / ...
+ ✓ Compiled / in 4.4s (801 modules)
+ GET / 200 in 4635ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 4.3s (790 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 4718ms
+ GET /api/auth/session 200 in 3895ms
+ GET /api/auth/session 200 in 46ms
+ ✓ Compiled /api/store in 392ms (518 modules)
+ GET /api/auth/session 200 in 638ms
+ GET /api/auth/session 200 in 39ms
+ GET /api/store 200 in 1594ms
+ ○ Compiling /products/[slug] ...
+ ✓ Compiled /products/[slug] in 685ms (799 modules)
+ POST /api/store 200 in 764ms
+ POST /api/store 200 in 164ms
+ ✓ Compiled /cart in 501ms (809 modules)
+ POST /api/store 200 in 1107ms
+ GET /api/auth/session 200 in 678ms
+ GET /api/auth/session 200 in 57ms
+ GET / 200 in 163ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 54ms
+ GET /api/auth/session 200 in 43ms
+ GET /api/auth/session 200 in 20ms
+ GET /api/auth/session 200 in 35ms
+ GET /api/auth/session 200 in 16ms
+ GET /api/store 200 in 485ms
+ ○ Compiling /products ...
+ ✓ Compiled /products in 664ms (815 modules)
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1546470427-227c7360f3d8?auto=format&fit=crop&w=900&q=80 404
+ GET /products 200 in 146ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 40ms
+ GET /api/auth/session 200 in 208ms
+ GET /api/auth/session 200 in 65ms
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1546470427-227c7360f3d8?auto=format&fit=crop&w=900&q=80 404
+ GET /api/auth/session 200 in 23ms
+ GET /api/auth/session 200 in 22ms
+ GET /api/store 200 in 943ms
+ GET /products 200 in 75ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 36ms
+ GET /api/auth/session 200 in 53ms
+ GET /api/auth/session 200 in 47ms
+ GET /api/auth/session 200 in 50ms
+ GET /api/store 200 in 86ms
+ GET /api/auth/session 200 in 33ms
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1546470427-227c7360f3d8?auto=format&fit=crop&w=900&q=80 404
+ ✓ Compiled /categories in 459ms (821 modules)
+ ✓ Compiled /orders in 465ms (831 modules)
+ ✓ Compiled in 120ms (293 modules)
+ ✓ Compiled in 199ms (580 modules)
+ ✓ Compiled in 527ms (580 modules)
+ ✓ Compiled /api/auth/[...nextauth] in 468ms (534 modules)
+ GET /api/auth/session 200 in 792ms
+ GET /api/auth/session 200 in 32ms
+ ✓ Compiled in 423ms (821 modules)
+ ✓ Compiled in 256ms (580 modules)
+ ✓ Compiled in 316ms (580 modules)
+ ✓ Compiled in 313ms (580 modules)
+ ✓ Compiled in 302ms (580 modules)
+ ✓ Compiled in 219ms (580 modules)
+ ✓ Compiled in 192ms (580 modules)
+ ✓ Compiled in 370ms (594 modules)
+ ✓ Compiled / in 256ms (297 modules)
+ GET / 200 in 412ms
+ ✓ Compiled /checkout in 389ms (592 modules)
+ GET /checkout 200 in 469ms
+ ✓ Compiled /api/catalog in 218ms (305 modules)
+ GET /api/catalog 200 in 1753ms
+ ✓ Compiled /checkout in 194ms (298 modules)
+ GET /checkout 200 in 369ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 1083ms (534 modules)
+ GET /api/auth/session 200 in 1419ms
+ GET /api/auth/session 200 in 32ms
+ ✓ Compiled / in 265ms (538 modules)
+ GET / 200 in 164ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 811ms (831 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 987ms
+ GET /api/auth/session 200 in 242ms
+ GET /api/auth/session 200 in 70ms
+ ✓ Compiled /api/store in 340ms (542 modules)
+ ✓ Compiled in 1ms (542 modules)
+ ✓ Compiled in 0ms (542 modules)
+ ✓ Compiled in 0ms (542 modules)
+ GET /api/auth/session 200 in 1197ms
+ ✓ Compiled in 0ms (542 modules)
+ GET /api/auth/session 200 in 621ms
+ GET /api/store 200 in 2438ms
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1546470427-227c7360f3d8?auto=format&fit=crop&w=900&q=80 404
+ GET /products?q=tomato 200 in 141ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 75ms
+ GET /api/auth/session 200 in 94ms
+ GET /api/auth/session 200 in 26ms
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1546470427-227c7360f3d8?auto=format&fit=crop&w=900&q=80 404
+ GET /api/auth/session 200 in 70ms
+ GET /api/auth/session 200 in 27ms
+ GET /api/store 200 in 720ms
+ ✓ Compiled /checkout in 440ms (543 modules)
+{"level":"info","event":"order.reserved","timestamp":"2026-08-26T07:46:12.830Z","orderId":"FC-EA43D57E","userId":"d416581c-ca2c-4d6c-af5d-fd2ede37c47a","total":372}
+ POST /api/store 200 in 2358ms
+ ✓ Compiled /api/invoice in 400ms (546 modules)
+ POST /api/invoice 200 in 2184ms
+ GET /checkout 200 in 112ms
+ ✓ Compiled /_not-found in 491ms (832 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 620ms
+ ✓ Compiled /api/auth/[...nextauth] in 243ms (542 modules)
+ GET /api/auth/session 200 in 376ms
+ GET /api/auth/session 200 in 27ms
+ GET /api/auth/session 200 in 37ms
+ GET /api/auth/session 200 in 19ms
+ GET /api/store 200 in 1102ms
+ ✓ Compiled in 213ms (293 modules)
+ ✓ Compiled in 458ms (583 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /orders 200 in 167ms
+ ✓ Compiled /_not-found in 166ms (586 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 279ms
+ ✓ Compiled /api/auth/[...nextauth] in 305ms (535 modules)
+ GET /api/auth/session 200 in 488ms
+ GET /api/auth/session 200 in 35ms
+ ✓ Compiled /api/store in 325ms (538 modules)
+ ✓ Compiled in 1ms (538 modules)
+ GET /api/auth/session 200 in 545ms
+ ✓ Compiled in 1ms (538 modules)
+ ✓ Compiled in 1ms (538 modules)
+ ✓ Compiled in 1ms (538 modules)
+ GET /api/auth/session 200 in 706ms
+ GET /api/store 200 in 1476ms
+ ✓ Compiled in 331ms (830 modules)
+ GET /orders 200 in 151ms
+ GET /api/auth/session 200 in 242ms
+ GET /api/auth/session 200 in 51ms
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1546470427-227c7360f3d8?auto=format&fit=crop&w=900&q=80 404

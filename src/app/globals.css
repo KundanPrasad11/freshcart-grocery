@@ -831,6 +831,18 @@ footer small {
   font-size: 13px;
   margin: 17px 0;
 }
+
+.order-history {
+  margin: 16px 0 0;
+  padding: 12px 0 0 20px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.order-history li + li {
+  margin-top: 6px;
+}
 .order-bottom {
   display: flex;
   justify-content: space-between;

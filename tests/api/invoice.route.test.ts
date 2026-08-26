@@ -1,24 +1,41 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-const authState = vi.hoisted(() => ({ session: null as { user: { id: string; email: string } } | null }));
+const authState = vi.hoisted(() => ({
+  session: null as { user: { id: string; email: string } } | null,
+}));
 vi.mock("@/auth", () => ({ auth: vi.fn(async () => authState.session) }));
 
 import { POST } from "@/app/api/invoice/route";
-import { addToCart, createOrder } from "@/lib/store-repository";
+import { addToCart, createOrder, getState } from "@/lib/store-repository";
 import { closeApiState, createTestUser, getDb, resetApiState } from "../support/api-test";
 import { configureTestEnvironment } from "../support/test-environment";
 
-const invoiceRequest = (orderId: string) => POST(new Request("http://test/api/invoice", {
-  method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ orderId }),
-}));
+const invoiceRequest = (orderId: string) =>
+  POST(
+    new Request("http://test/api/invoice", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ orderId }),
+    })
+  );
 
 async function createOrderForSignedInUser() {
   const user = await createTestUser();
   authState.session = { user: { id: user.id, email: user.email } };
-  const product = await (await getDb()).collection("products").findOne({ active: true, stockQuantity: { $gt: 0 } });
+  const product = await (
+    await getDb()
+  )
+    .collection("products")
+    .findOne({ active: true, stockQuantity: { $gt: 0 } });
   if (!product) throw new Error("Expected seeded product.");
   await addToCart(user.id, product.id);
-  const result = await createOrder(user.id, "12 MG Road, Bengaluru 560001");
+  const slot = (await getState(user.id)).deliverySlots[0];
+  if (!slot) throw new Error("Expected seeded delivery slot.");
+  const result = await createOrder(user.id, {
+    address: "12 MG Road, Bengaluru 560001",
+    slotId: slot.id,
+    idempotencyKey: crypto.randomUUID(),
+  });
   if ("error" in result) throw new Error(result.error);
   return { order: result.order, product };
 }
@@ -43,8 +60,14 @@ describe("POST /api/invoice", () => {
 
   it("sends escaped invoice HTML and an attachment through Resend", async () => {
     const { order, product } = await createOrderForSignedInUser();
-    await (await getDb()).collection("products").updateOne({ id: product.id }, { $set: { name: "<script>alert('x')</script>" } });
-    const send = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>(async () => new Response(JSON.stringify({ id: "email_123" }), { status: 200 }));
+    await (
+      await getDb()
+    )
+      .collection("orders")
+      .updateOne({ id: order.id }, { $set: { "lineItems.0.name": "<script>alert('x')</script>" } });
+    const send = vi.fn<(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>>(
+      async () => new Response(JSON.stringify({ id: "email_123" }), { status: 200 })
+    );
     vi.stubGlobal("fetch", send);
 
     const response = await invoiceRequest(order.id);
@@ -59,9 +82,27 @@ describe("POST /api/invoice", () => {
 
   it("maps Resend recipient restrictions to a useful error", async () => {
     const { order } = await createOrderForSignedInUser();
-    vi.stubGlobal("fetch", vi.fn(async () => new Response("forbidden", { status: 403 })));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("forbidden", { status: 403 }))
+    );
     const response = await invoiceRequest(order.id);
     expect(response.status).toBe(503);
-    await expect(response.json()).resolves.toMatchObject({ error: expect.stringContaining("Resend blocked") });
+    await expect(response.json()).resolves.toMatchObject({
+      error: expect.stringContaining("Resend blocked"),
+    });
+  });
+
+  it("returns a safe error when Resend times out", async () => {
+    const { order } = await createOrderForSignedInUser();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new DOMException("Timed out", "AbortError");
+      })
+    );
+    const response = await invoiceRequest(order.id);
+    expect(response.status).toBe(503);
+    await expect(response.json()).resolves.toMatchObject({ code: "INVOICE_UNAVAILABLE" });
   });
 });

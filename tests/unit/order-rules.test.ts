@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { calculateOrderTotals, DELIVERY_FEE } from "@/lib/order-rules";
+import {
+  calculateOrderTotals,
+  canTransitionFulfillment,
+  DELIVERY_FEE,
+  legacyOrderStatus,
+} from "@/lib/order-rules";
 
 describe("calculateOrderTotals", () => {
   it("calculates a subtotal and the delivery fee below the free-delivery threshold", () => {
@@ -35,5 +40,17 @@ describe("calculateOrderTotals", () => {
     expect(calculateOrderTotals([{ price: 100, quantity: 1 }], {
       type: "fixed", value: 500, minimumOrder: 0,
     })).toEqual({ subtotal: 100, discount: 100, delivery: 49, total: 49 });
+  });
+
+  it("allows only sequential fulfillment transitions", () => {
+    expect(canTransitionFulfillment("processing", "packed")).toBe(true);
+    expect(canTransitionFulfillment("packed", "out_for_delivery")).toBe(true);
+    expect(canTransitionFulfillment("processing", "delivered")).toBe(false);
+    expect(canTransitionFulfillment("packed", "cancelled")).toBe(false);
+  });
+
+  it("keeps the legacy UI status derived from the fulfillment state", () => {
+    expect(legacyOrderStatus("awaiting_payment")).toBe("Processing");
+    expect(legacyOrderStatus("out_for_delivery")).toBe("Out for delivery");
   });
 });

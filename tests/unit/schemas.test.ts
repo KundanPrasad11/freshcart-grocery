@@ -1,19 +1,50 @@
 import { describe, expect, it } from "vitest";
-import { invoiceSchema, registerSchema, storeActionSchema } from "@/lib/schemas";
+import { invoiceSchema, loginSchema, registerSchema, storeActionSchema } from "@/lib/schemas";
 
 describe("request schemas", () => {
   it("normalizes registration email addresses", () => {
-    expect(registerSchema.parse({ name: "Jamie Rivera", email: " JAMIE@EXAMPLE.COM ", password: "password123" }).email)
-      .toBe("jamie@example.com");
+    expect(
+      registerSchema.parse({
+        name: "Jamie Rivera",
+        email: " JAMIE@EXAMPLE.COM ",
+        password: "password123",
+      }).email
+    ).toBe("jamie@example.com");
   });
 
   it("rejects weak registration payloads", () => {
-    expect(registerSchema.safeParse({ name: "J", email: "bad", password: "short" }).success).toBe(false);
+    expect(registerSchema.safeParse({ name: "J", email: "bad", password: "short" }).success).toBe(
+      false
+    );
+    expect(
+      registerSchema.safeParse({
+        name: "Jamie Rivera",
+        email: "jamie@example.test",
+        password: "password123",
+        role: "admin",
+      }).success
+    ).toBe(false);
+    expect(
+      loginSchema.safeParse({ email: " JAMIE@EXAMPLE.TEST ", password: "password123" }).data?.email
+    ).toBe("jamie@example.test");
   });
 
   it("only accepts known store actions with safe quantities", () => {
-    expect(storeActionSchema.safeParse({ action: "cart:update", productId: "avocados", quantity: -1 }).success).toBe(false);
-    expect(storeActionSchema.safeParse({ action: "order:delete", orderId: "FC-123" }).success).toBe(false);
+    expect(
+      storeActionSchema.safeParse({ action: "cart:update", productId: "avocados", quantity: -1 })
+        .success
+    ).toBe(false);
+    expect(storeActionSchema.safeParse({ action: "order:delete", orderId: "FC-123" }).success).toBe(
+      false
+    );
+    expect(
+      storeActionSchema.safeParse({
+        action: "order:create",
+        address: "12 MG Road, Bengaluru 560001",
+        delivery: { slotId: "delivery-2026-08-26-morning", instructions: "x".repeat(301) },
+        idempotencyKey: crypto.randomUUID(),
+      }).success
+    ).toBe(false);
   });
 
   it("requires a FreshCart invoice identifier", () => {
