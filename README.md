@@ -8,23 +8,28 @@
 
 **Live demo:** [freshcart-grocery-mu.vercel.app](https://freshcart-grocery-mu.vercel.app)
 
+> The demo is deployed on Vercel. Its database-backed routes require the MongoDB Atlas production connection and network access to be configured.
+
 FreshCart lets shoppers browse groceries, save favourites, manage a cart, complete checkout, and review past orders. It also includes a protected admin area for managing the catalogue, stock, discounts, fulfilment, and user roles.
 
-## Screenshot
+## Product tour
 
 ![FreshCart home page](docs/screenshots/home.png)
 
 ![FreshCart catalogue](docs/screenshots/catalogue.png)
 
+The screenshots are committed so GitHub renders them directly. A short checkout GIF can be added here later without changing the README structure.
+
 ## Highlights
 
-- End-to-end shopper flow: registration, sign-in, catalogue browsing, wishlist, cart, checkout, invoices, and order history.
+- End-to-end shopper flow: registration, sign-in, catalogue browsing, wishlist, cart, delivery-slot checkout, payment confirmation, invoices, and order history.
 - MongoDB-backed product catalogue and user state; the JSON catalogue is seed data only, not the runtime data store.
 - Admin dashboard for products, stock, categories, discounts, order status, and customer/admin roles.
 - Responsive catalogue filters with shareable URL state (`category`, search, values, price, and sort) and cached catalogue responses.
 - Accessible interaction design: semantic landmarks, skip link, visible keyboard focus, descriptive icon controls, and modal focus trapping/restoration.
+- Razorpay Checkout integration: server-calculated INR totals, server-side payment-signature verification, webhook validation, and a development-only dummy-payment path.
 - Invoice emails through Resend, with escaped dynamic HTML and a generated PDF receipt attachment.
-- Defensive API layer: Zod validation, malformed JSON handling, rate limits on registration and login, and structured error logging.
+- Defensive API layer: strict Zod validation, malformed JSON handling, distributed Upstash rate limits when configured, and structured PII-safe error logging.
 - Automated tests for order rules, API routes, accessibility, keyboard behaviour, and the sign-up → cart → checkout journey.
 
 ## Architecture
@@ -39,6 +44,9 @@ flowchart LR
   Validate --> Repo[Repository layer]
   Repo --> Mongo[(MongoDB)]
   API --> Catalog[Catalogue cache headers]
+  API --> Razorpay[Razorpay Orders + Checkout]
+  Razorpay --> Webhook[Verified payment webhook]
+  Webhook --> Repo
   API --> Invoice[Invoice service]
   Invoice --> Resend[Resend email API]
 ```
@@ -51,19 +59,23 @@ MongoDB stores these indexed collections:
 - `products` and `categories` — customer-facing catalogue plus stock and availability.
 - `carts` and `wishlists` — account-scoped shopper state.
 - `discounts` — active fixed or percentage promotions.
-- `orders` — order lines, totals, delivery address, and fulfilment status.
+- `orders` — immutable order lines, delivery slot/instructions, payment state, reservations, and fulfilment history.
+- `delivery_slots` — capacity-managed delivery windows reserved alongside inventory.
+- `processed_webhooks` — provider-event deduplication for idempotent payment processing.
 
 ## Stack
 
-| Area           | Technology                                              |
-| -------------- | ------------------------------------------------------- |
-| UI             | Next.js 14 App Router, React 18, TypeScript, CSS        |
-| Images         | `next/image` with responsive Unsplash assets            |
-| Authentication | Auth.js credentials provider and bcrypt password hashes |
-| Database       | MongoDB Node.js driver with collection indexes          |
-| Validation     | Zod and a defensive JSON parsing helper                 |
-| Email          | Resend and a small PDF invoice generator                |
-| Testing        | Vitest, Playwright, and axe-core                        |
+| Area           | Technology                                                                  |
+| -------------- | --------------------------------------------------------------------------- |
+| UI             | Next.js 14 App Router, React 18, TypeScript, CSS                            |
+| Images         | `next/image` with responsive Unsplash assets                                |
+| Authentication | Auth.js credentials provider and bcrypt password hashes                     |
+| Database       | MongoDB Node.js driver with collection indexes                              |
+| Validation     | Zod and a defensive JSON parsing helper                                     |
+| Email          | Resend and a small PDF invoice generator                                    |
+| Payments       | Razorpay Orders, Checkout, signature verification, webhooks                 |
+| Rate limiting  | Upstash Redis in production; deterministic in-memory adapter for local/test |
+| Testing        | Vitest, Playwright, and axe-core                                            |
 
 ## Run locally
 
@@ -72,6 +84,7 @@ MongoDB stores these indexed collections:
 - Node.js 20 or later
 - A MongoDB Atlas or local MongoDB connection string
 - A Resend API key only if you want to send real invoices
+- Razorpay test keys only if you want to exercise real hosted checkout
 
 ### Setup
 
@@ -84,7 +97,7 @@ MongoDB stores these indexed collections:
 2. Copy the environment template and fill in the required values.
 
    ```bash
-   cp .env.example .env.local
+   Copy-Item .env.example .env.local
    ```
 
 3. At minimum, set `AUTH_SECRET`, `MONGODB_URI`, and `MONGODB_DB` in `.env.local`.
@@ -117,6 +130,19 @@ INVOICE_TEST_RECIPIENT=you@example.com
 
 For production, verify a sending domain in Resend and use it in `INVOICE_FROM`.
 
+### Razorpay test checkout
+
+For hosted test payments, add the following server-only variables. Test keys start with `rzp_test_`; do not commit the secret values.
+
+```env
+RAZORPAY_KEY_ID=rzp_test_your_key_id
+RAZORPAY_KEY_SECRET=your_key_secret
+RAZORPAY_WEBHOOK_SECRET=your_webhook_secret
+APP_URL=http://localhost:3000
+```
+
+Without Razorpay keys, development uses the explicit dummy-payment path. Production does not enable dummy payments.
+
 ## Demo accounts
 
 FreshCart deliberately has **no shared hard-coded account**. Create one through the sign-up screen:
@@ -127,6 +153,15 @@ FreshCart deliberately has **no shared hard-coded account**. Create one through 
 | Administrator | The email set as `ADMIN_EMAIL` | Your chosen 8+ character password | Set `ADMIN_EMAIL`, then register that same email and visit `/admin` |
 
 This keeps credentials out of source control and makes the setup safe to deploy.
+
+## Demo script
+
+1. Register a shopper account at `/auth`.
+2. Browse `/products`, filter by category or values, and add products to the cart.
+3. Choose a delivery slot and optional instructions at checkout.
+4. Complete the Razorpay test checkout, or use the local dummy-payment path.
+5. Open `/orders` to show payment, reservation, fulfilment, and delivery details.
+6. Sign in with the `ADMIN_EMAIL` account and open `/admin` to manage stock, catalogue data, promotions, customers, and fulfilment transitions.
 
 ## Tests
 
@@ -192,11 +227,12 @@ tests/
 - Admin routes require a server-checked `admin` role from MongoDB.
 - Catalogue responses are cacheable for 60 seconds and permit five minutes of stale-while-revalidate; the client also shares a catalogue request across remounts.
 - Invoice fields are HTML-escaped before entering the email template.
+- Pending checkout orders reserve inventory and delivery-slot capacity; paid orders consume the reservation once.
 
 ## Trade-offs and next steps
 
-- **Payment is simulated.** Checkout creates an order but does not capture money. A real launch needs Stripe/Razorpay, webhook verification, and payment-status transitions.
-- **Rate limiting is in-memory.** It is suitable for local development or one Node instance. Use Redis/Upstash for distributed deployments.
+- **Razorpay is test-mode first.** The implementation supports hosted checkout and verified callbacks, but the production account, webhook endpoint, settlement configuration, and refund operations still need operational verification before a real launch.
+- **Rate-limit fallback is local only.** Upstash Redis is used when configured; the in-memory adapter is intentionally retained for development and tests.
 - **Catalogue filtering is client-side but URL-persisted.** This keeps the current small catalogue responsive and shareable. Move filtering and pagination into `/api/catalog` as the catalogue grows.
 - **Image hosting uses Unsplash.** Product images should move to owned, optimized media storage before launch.
 - **Resend sandbox limits apply.** Without a verified domain, invoices can only reach the Resend account email configured as `INVOICE_TEST_RECIPIENT`.
@@ -204,4 +240,4 @@ tests/
 
 ## Resume-ready talking points
 
-FreshCart is a focused example of owning a web product beyond its UI: modelling operational data, securing mutations, handling edge cases, building test coverage, and documenting realistic production trade-offs.
+FreshCart is a focused example of owning a web product beyond its UI: modelling operational data, securing mutations, handling edge cases, integrating a payment provider, building test coverage, and documenting realistic production trade-offs.
