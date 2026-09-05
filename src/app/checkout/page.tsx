@@ -2,25 +2,61 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
-import { cartProducts, Order, useStore } from "@/context/store";
-import { downloadInvoice, emailInvoice } from "@/lib/invoice";
+import { cartProducts, useStore } from "@/context/store";
 import { EmptyState } from "@/components/ui";
-import { CheckoutForm, CheckoutOrderSummary, CheckoutSuccess } from "@/components/checkout";
+import { CheckoutForm, CheckoutOrderSummary } from "@/components/checkout";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { money } from "@/lib/catalog";
 import { calculateOrderTotals } from "@/lib/order-rules";
 
+type RazorpayResponse = {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+};
+type RazorpayOptions = {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  order_id: string;
+  prefill?: { name?: string; email?: string };
+  handler: (response: RazorpayResponse) => void;
+  modal?: { ondismiss: () => void };
+};
+type RazorpayInstance = { open: () => void };
+
+declare global {
+  interface Window {
+    Razorpay?: new (options: RazorpayOptions) => RazorpayInstance;
+  }
+}
+
+let razorpayScript: Promise<void> | null = null;
+function loadRazorpay() {
+  if (window.Razorpay) return Promise.resolve();
+  if (!razorpayScript) {
+    razorpayScript = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error("Could not load Razorpay checkout."));
+      document.head.appendChild(script);
+    });
+  }
+  return razorpayScript;
+}
+
 export default function CheckoutPage() {
-  const { cart, products, user, placeOrder, deliverySlots } = useStore();
+  const { cart, products, user, deliverySlots } = useStore();
   const lines = cartProducts(cart, products);
-  const [order, setOrder] = useState<Order | null>(null);
   const [address, setAddress] = useState("");
   const [addressError, setAddressError] = useState("");
   const [instructions, setInstructions] = useState("");
   const [slotId, setSlotId] = useState("");
   const [idempotencyKey] = useState(() => crypto.randomUUID());
-  const [payment, setPayment] = useState("card");
-  const [emailStatus, setEmailStatus] = useState("");
   const [showPaymentConfirm, setShowPaymentConfirm] = useState(false);
   const [placingOrder, setPlacingOrder] = useState(false);
   const { subtotal, delivery, total } = calculateOrderTotals(
@@ -34,15 +70,6 @@ export default function CheckoutPage() {
   const updateAddress = (value: string) => {
     setAddress(value);
     setAddressError("");
-  };
-  const sendInvoice = async (orderId: string) => {
-    setEmailStatus("Sending…");
-    const result = await emailInvoice(orderId);
-    setEmailStatus(
-      result.ok
-        ? "Invoice emailed to your account address."
-        : (result.message ?? "Invoice email could not be sent.")
-    );
   };
   const requestPaymentConfirmation = (event: FormEvent) => {
     event.preventDefault();
@@ -58,31 +85,59 @@ export default function CheckoutPage() {
   };
   const confirmPayment = async () => {
     setPlacingOrder(true);
-    const placed = await placeOrder({ address, instructions, slotId }, idempotencyKey);
-    if (!placed) {
-      setAddressError(
-        "We could not place this order. Please review your delivery address and try again."
-      );
+    const response = await fetch("/api/checkout/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ address, delivery: { slotId, ...(instructions ? { instructions } : {}) }, idempotencyKey }) });
+    const result = await response.json();
+    if (!response.ok) {
+      setAddressError(result.error ?? "Could not start secure checkout. Please try again.");
       setPlacingOrder(false);
       setShowPaymentConfirm(false);
       return;
     }
-    setOrder(placed);
-    setShowPaymentConfirm(false);
-    await sendInvoice(placed.id);
-    setPlacingOrder(false);
+    if (result.mode === "dummy") {
+      await fetch("/api/checkout/dummy", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ orderId: result.orderId }) });
+      window.location.assign(`/checkout/success?order=${encodeURIComponent(result.orderId)}`);
+      return;
+    }
+    try {
+      await loadRazorpay();
+      if (!window.Razorpay) throw new Error("Razorpay checkout could not start.");
+      const checkout = new window.Razorpay({
+        key: result.keyId,
+        amount: result.amount,
+        currency: result.currency,
+        name: result.name,
+        description: result.description,
+        order_id: result.razorpayOrderId,
+        prefill: result.prefill,
+        handler: async (payment) => {
+          const verified = await fetch("/api/checkout/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              orderId: result.orderId,
+              razorpayOrderId: payment.razorpay_order_id,
+              razorpayPaymentId: payment.razorpay_payment_id,
+              razorpaySignature: payment.razorpay_signature,
+            }),
+          });
+          if (!verified.ok) {
+            setAddressError("Payment completed, but verification is pending. Please check My orders shortly.");
+            setPlacingOrder(false);
+            return;
+          }
+          window.location.assign(`/checkout/success?order=${encodeURIComponent(result.orderId)}`);
+        },
+        modal: { ondismiss: () => setPlacingOrder(false) },
+      });
+      checkout.open();
+      setShowPaymentConfirm(false);
+    } catch (error) {
+      setAddressError(error instanceof Error ? error.message : "Could not start Razorpay checkout.");
+      setPlacingOrder(false);
+      setShowPaymentConfirm(false);
+    }
   };
 
-  if (order)
-    return (
-      <CheckoutSuccess
-        order={order}
-        email={user?.email}
-        emailStatus={emailStatus}
-        onDownload={() => downloadInvoice(order, products)}
-        onEmail={() => void sendInvoice(order.id)}
-      />
-    );
   if (!lines.length)
     return (
       <section className="page">
@@ -105,7 +160,6 @@ export default function CheckoutPage() {
             instructions={instructions}
             deliverySlots={deliverySlots}
             slotId={slotId}
-            payment={payment}
             total={total}
             onAddressChange={updateAddress}
             onInstructionsChange={setInstructions}
@@ -113,7 +167,6 @@ export default function CheckoutPage() {
               setSlotId(value);
               setAddressError("");
             }}
-            onPaymentChange={setPayment}
             onSubmit={requestPaymentConfirmation}
           />
           <CheckoutOrderSummary lines={lines} delivery={delivery} />

@@ -49,6 +49,28 @@ export const storeActionSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("order:reorder"), orderId: z.string().regex(/^FC-[A-Z0-9-]{8,}$/) }).strict(),
 ]);
 export const invoiceSchema = z.object({ orderId: z.string().regex(/^FC-[A-Z0-9-]{8,}$/) }).strict();
+export const checkoutSessionSchema = z
+  .object({
+    address: z.string().trim().min(10).max(300),
+    delivery: z
+      .object({
+        instructions: z.string().trim().min(1).max(300).optional(),
+        slotId: z.string().trim().regex(/^delivery-[a-z0-9-]{8,120}$/),
+      })
+      .strict(),
+    idempotencyKey: z.string().uuid(),
+    discountCode: z.string().trim().min(2).max(40).optional(),
+  })
+  .strict();
+export const dummyPaymentSchema = z.object({ orderId: z.string().regex(/^FC-[A-Z0-9-]{8,}$/) }).strict();
+export const razorpayPaymentVerificationSchema = z
+  .object({
+    orderId: z.string().regex(/^FC-[A-Z0-9-]{8,}$/),
+    razorpayOrderId: z.string().regex(/^order_[A-Za-z0-9]+$/),
+    razorpayPaymentId: z.string().regex(/^pay_[A-Za-z0-9]+$/),
+    razorpaySignature: z.string().regex(/^[a-f0-9]{64}$/),
+  })
+  .strict();
 
 const productFields = z
   .object({

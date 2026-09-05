@@ -23,6 +23,7 @@
     "mongodb": "^7.5.0",
     "next": "14.2.35",
     "next-auth": "^5.0.0-beta.32",
+    "razorpay": "^2.9.8",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "vercel": "^59.5.0",

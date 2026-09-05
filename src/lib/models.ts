@@ -74,8 +74,12 @@ export type OrderDelivery = {
   slot: DeliverySlot;
 };
 export type OrderPayment = {
-  provider: "stripe";
+  /** `stripe` is retained only to read historic orders during the provider migration. */
+  provider: "razorpay" | "stripe" | "dummy";
   status: PaymentStatus;
+  razorpayOrderId?: string;
+  paymentId?: string;
+  /** Legacy Stripe-only fields kept so already-created orders remain readable. */
   checkoutSessionId?: string;
   paymentIntentId?: string;
   refundId?: string;
@@ -118,5 +122,6 @@ export type OrderDocument = {
   updatedAt: Date;
 };
 
-/** Reserved for Stripe's later webhook implementation. */
+/** Provider webhook event deduplication record. */
 export type ProcessedWebhookDocument = { eventId: string; processedAt: Date };
+export type InvoiceSendDocument = { orderId: string; createdAt: Date };

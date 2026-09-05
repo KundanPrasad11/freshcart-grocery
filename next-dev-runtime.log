@@ -182,3 +182,104 @@
  GET /api/auth/session 200 in 242ms
  GET /api/auth/session 200 in 51ms
  ⨯ upstream image response failed for https://images.unsplash.com/photo-1546470427-227c7360f3d8?auto=format&fit=crop&w=900&q=80 404
+ GET /api/auth/session 200 in 80ms
+ GET /api/auth/session 200 in 21ms
+ ✓ Compiled in 212ms (293 modules)
+ ✓ Compiled in 437ms (583 modules)
+ ✓ Compiled in 253ms (583 modules)
+ ✓ Compiled in 275ms (583 modules)
+ ✓ Compiled in 322ms (583 modules)
+ ✓ Compiled in 352ms (583 modules)
+ ✓ Compiled in 125ms (583 modules)
+ ✓ Compiled in 97ms (583 modules)
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 852ms (534 modules)
+ GET /api/auth/session 200 in 1046ms
+ GET /api/auth/session 200 in 11ms
+ ✓ Compiled /api/store in 230ms (537 modules)
+ POST /api/store 200 in 1452ms
+ POST /api/store 200 in 273ms
+ POST /api/store 200 in 256ms
+ ✓ Compiled /cart in 173ms (542 modules)
+ ○ Compiling /api/checkout/session ...
+ ✓ Compiled /api/checkout/session in 761ms (741 modules)
+{"level":"info","event":"order.reserved","timestamp":"2026-08-26T08:18:35.590Z","orderId":"FC-AEFFE041","userId":"d416581c-ca2c-4d6c-af5d-fd2ede37c47a","total":676}
+ POST /api/checkout/session 200 in 2873ms
+ ✓ Compiled /api/checkout/dummy in 198ms (743 modules)
+ POST /api/checkout/dummy 200 in 1457ms
+ ✓ Compiled /checkout/success in 395ms (1039 modules)
+ GET /checkout/success?order=FC-AEFFE041 200 in 528ms
+ ✓ Compiled /_not-found in 330ms (1042 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 426ms
+ GET /api/auth/session 200 in 53ms
+ GET /api/auth/session 200 in 17ms
+ GET /api/auth/session 200 in 18ms
+ GET /api/auth/session 200 in 12ms
+ GET /api/store 200 in 775ms
+ GET /api/auth/session 200 in 46ms
+ GET /api/auth/session 200 in 12ms
+ ✓ Compiled in 200ms (293 modules)
+ ✓ Compiled in 228ms (585 modules)
+ ✓ Compiled in 123ms (585 modules)
+ ✓ Compiled in 103ms (585 modules)
+ ✓ Compiled in 121ms (585 modules)
+ ✓ Compiled in 350ms (585 modules)
+ ✓ Compiled in 365ms (585 modules)
+ ✓ Compiled in 184ms (585 modules)
+ ✓ Compiled in 134ms (585 modules)
+ ✓ Compiled in 119ms (585 modules)
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 1089ms (534 modules)
+ GET /api/auth/session 200 in 1514ms
+ GET /api/auth/session 200 in 26ms
+ ✓ Compiled /api/store in 255ms (537 modules)
+ POST /api/store 200 in 1876ms
+ POST /api/store 200 in 458ms
+ POST /api/store 200 in 537ms
+ ✓ Compiled /cart in 362ms (542 modules)
+ ○ Compiling /api/checkout/session ...
+ ✓ Compiled /api/checkout/session in 1270ms (657 modules)
+{"level":"info","event":"order.reserved","timestamp":"2026-08-26T09:34:20.658Z","orderId":"FC-0C1C5299","userId":"d416581c-ca2c-4d6c-af5d-fd2ede37c47a","total":616}
+ POST /api/checkout/session 200 in 3284ms
+ ○ Compiling /api/checkout/dummy ...
+ ✓ Compiled /api/checkout/dummy in 552ms (657 modules)
+ POST /api/checkout/dummy 200 in 2144ms
+ GET /checkout/success?order=FC-0C1C5299 200 in 218ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 542ms (952 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 705ms
+ ✓ Compiled /api/auth/[...nextauth] in 240ms (660 modules)
+ GET /api/auth/session 200 in 394ms
+ GET /api/auth/session 200 in 24ms
+ GET /api/auth/session 200 in 28ms
+ GET /api/auth/session 200 in 18ms
+ GET /api/store 200 in 884ms
+ GET /api/auth/session 200 in 49ms
+ GET /api/auth/session 200 in 13ms
+ ○ Compiling /products ...
+ ✓ Compiled /products in 655ms (302 modules)
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1546470427-227c7360f3d8?auto=format&fit=crop&w=900&q=80 404
+ ✓ Compiled /api/store in 301ms (544 modules)
+ ✓ Compiled in 410ms (544 modules)
+ POST /api/store 200 in 7358ms
+ POST /api/store 200 in 3733ms
+ POST /api/store 200 in 987ms
+ ✓ Compiled /api/checkout/session in 332ms (659 modules)
+{"level":"info","event":"order.reserved","timestamp":"2026-08-26T14:12:01.864Z","orderId":"FC-0DBB13E1","userId":"d416581c-ca2c-4d6c-af5d-fd2ede37c47a","total":208}
+ POST /api/checkout/session 200 in 3554ms
+ ✓ Compiled /api/checkout/dummy in 350ms (656 modules)
+ POST /api/checkout/dummy 200 in 1697ms
+ GET /checkout/success?order=FC-0DBB13E1 200 in 177ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 531ms (951 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 692ms
+ ✓ Compiled /api/auth/[...nextauth] in 402ms (659 modules)
+ GET /api/auth/session 200 in 526ms
+ GET /api/auth/session 200 in 43ms
+ GET /api/auth/session 200 in 33ms
+ GET /api/auth/session 200 in 27ms
+ GET /api/store 200 in 3855ms
+ GET /api/auth/session 200 in 45ms
+ GET /api/auth/session 200 in 20ms
+ GET /api/auth/session 200 in 596ms
+ GET /api/auth/session 200 in 119ms

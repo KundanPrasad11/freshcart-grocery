@@ -10,6 +10,7 @@ import {
   DeliverySlotDocument,
   DiscountDocument,
   FulfillmentStatus,
+  InvoiceSendDocument,
   OrderDocument,
   OrderLineSnapshot,
   OrderStatus,
@@ -30,7 +31,7 @@ import {
 
 const DELIVERY_TIMEZONE = "Asia/Kolkata";
 const DELIVERY_SLOT_CAPACITY = 20;
-const RESERVATION_MINUTES = 15;
+const RESERVATION_MINUTES = 30;
 
 export type StoreState = {
   cart: CartItem[];
@@ -99,6 +100,7 @@ async function collections() {
     orders: db.collection<OrderDocument>("orders"),
     deliverySlots: db.collection<DeliverySlotDocument>("delivery_slots"),
     processedWebhooks: db.collection<ProcessedWebhookDocument>("processed_webhooks"),
+    invoiceSends: db.collection<InvoiceSendDocument>("invoice_sends"),
   };
 }
 
@@ -182,12 +184,21 @@ export async function ensureDatabase() {
           { unique: true, partialFilterExpression: { "payment.checkoutSessionId": { $type: "string" } } }
         ),
         db.orders.createIndex(
+          { "payment.razorpayOrderId": 1 },
+          { unique: true, partialFilterExpression: { "payment.razorpayOrderId": { $type: "string" } } }
+        ),
+        db.orders.createIndex(
+          { "payment.paymentId": 1 },
+          { unique: true, partialFilterExpression: { "payment.paymentId": { $type: "string" } } }
+        ),
+        db.orders.createIndex(
           { "payment.paymentIntentId": 1 },
           { unique: true, partialFilterExpression: { "payment.paymentIntentId": { $type: "string" } } }
         ),
         db.deliverySlots.createIndex({ id: 1 }, { unique: true }),
         db.deliverySlots.createIndex({ startsAt: 1 }),
         db.processedWebhooks.createIndex({ eventId: 1 }, { unique: true }),
+        db.invoiceSends.createIndex({ orderId: 1 }, { unique: true }),
       ]);
       if ((await db.products.countDocuments()) === 0) {
         const now = new Date();
@@ -338,7 +349,7 @@ async function releaseReservationInSession(
         status: "Cancelled",
         fulfillmentStatus: "cancelled",
         reservation: { status },
-        payment: { ...(order.payment ?? { provider: "stripe", status: "pending" as const }), status: "failed" },
+        payment: { ...(order.payment ?? { provider: "razorpay", status: "pending" as const }), status: "failed" },
         updatedAt: now,
       },
       $push: {
@@ -538,6 +549,7 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
         { session }
       );
       if (!reservedSlot.modifiedCount) throw new CheckoutRejected("That delivery slot was just taken. Please choose another.");
+      const { delivery: deliveryFee, ...priceTotals } = totals;
       const delivery: OrderDocument["delivery"] = {
         address: input.address,
         ...(input.instructions ? { instructions: input.instructions } : {}),
@@ -551,11 +563,12 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
         items: cart.items,
         lines,
         lineItems: lines,
-        ...totals,
+        ...priceTotals,
+        deliveryFee,
         status: legacyOrderStatus(fulfillmentStatus),
         address: input.address,
         delivery,
-        payment: { provider: "stripe", status: "pending" },
+        payment: { provider: "razorpay", status: "pending" },
         fulfillmentStatus,
         statusHistory: [history(null, fulfillmentStatus, `customer:${userId}`, now)],
         idempotencyKey: input.idempotencyKey,
@@ -612,7 +625,7 @@ export async function cancelOrder(userId: string, orderId: string, reason?: stri
   }
 }
 
-/** Stripe webhook seam: a failed or expired payment releases an active hold. */
+/** A failed or expired payment releases an active hold. */
 export async function releaseReservationAfterPaymentFailure(orderId: string, reason = "Payment failed") {
   await ensureDatabase();
   const client = await getMongoClient();
@@ -624,7 +637,7 @@ export async function releaseReservationAfterPaymentFailure(orderId: string, rea
         { id: orderId, "payment.status": "pending", "reservation.status": "active" },
         { session }
       );
-      if (order) released = await releaseReservationInSession(order, session, "released", "stripe:webhook", reason);
+      if (order) released = await releaseReservationInSession(order, session, "released", "payment:webhook", reason);
     });
     return released;
   } finally {
@@ -632,10 +645,10 @@ export async function releaseReservationAfterPaymentFailure(orderId: string, rea
   }
 }
 
-/** Stripe webhook seam: convert a held checkout into a paid fulfillment order exactly once. */
+/** Convert a held checkout into a paid fulfillment order exactly once. */
 export async function markOrderPaid(
   orderId: string,
-  payment: Pick<NonNullable<OrderDocument["payment"]>, "checkoutSessionId" | "paymentIntentId">
+  payment: Pick<NonNullable<OrderDocument["payment"]>, "provider" | "razorpayOrderId" | "paymentId">
 ) {
   await ensureDatabase();
   const client = await getMongoClient();
@@ -663,7 +676,7 @@ export async function markOrderPaid(
         { id: orderId, "payment.status": "pending", "reservation.status": "active" },
         {
           $set: {
-            payment: { provider: "stripe", status: "paid", ...payment },
+            payment: { status: "paid", ...payment, provider: payment.provider ?? order.payment?.provider ?? "razorpay" },
             reservation: { status: "consumed" },
             fulfillmentStatus: "processing",
             status: "Processing",
@@ -672,8 +685,8 @@ export async function markOrderPaid(
           $push: {
             statusHistory: {
               $each: [
-                history("payment:pending", "payment:paid", "stripe:webhook", now),
-                history(from, "processing", "stripe:webhook", now, "Payment confirmed"),
+                history("payment:pending", "payment:paid", `${payment.provider ?? order.payment?.provider ?? "razorpay"}:payment`, now),
+                history(from, "processing", `${payment.provider ?? order.payment?.provider ?? "razorpay"}:payment`, now, "Payment confirmed"),
               ],
             },
           },
@@ -688,7 +701,7 @@ export async function markOrderPaid(
   }
 }
 
-/** Stripe webhook seam: only a confirmed refund finalizes cancellation and physical restock. */
+/** Only a confirmed refund finalizes cancellation and physical restock. */
 export async function finalizeRefund(orderId: string, refundId: string) {
   await ensureDatabase();
   const client = await getMongoClient();
@@ -721,7 +734,7 @@ export async function finalizeRefund(orderId: string, refundId: string) {
         { id: orderId, "payment.status": "refund_pending" },
         {
           $set: {
-            payment: { ...(order.payment ?? { provider: "stripe", status: "pending" as const }), status: "refunded", refundId },
+            payment: { ...(order.payment ?? { provider: "razorpay", status: "pending" as const }), status: "refunded", refundId },
             fulfillmentStatus: "cancelled",
             status: "Cancelled",
             updatedAt: now,
@@ -729,8 +742,8 @@ export async function finalizeRefund(orderId: string, refundId: string) {
           $push: {
             statusHistory: {
               $each: [
-                history("payment:refund_pending", "payment:refunded", "stripe:webhook", now),
-                history(from, "cancelled", "stripe:webhook", now, "Refund confirmed"),
+                history("payment:refund_pending", "payment:refunded", `${order.payment?.provider ?? "razorpay"}:webhook`, now),
+                history(from, "cancelled", `${order.payment?.provider ?? "razorpay"}:webhook`, now, "Refund confirmed"),
               ],
             },
           },
@@ -779,6 +792,46 @@ export async function reorderOrder(userId: string, orderId: string) {
 export async function getOrderForUser(userId: string, orderId: string) {
   await ensureDatabase();
   return (await collections()).orders.findOne({ userId, id: orderId });
+}
+
+export async function getOrderByRazorpayOrderId(razorpayOrderId: string) {
+  await ensureDatabase();
+  return (await collections()).orders.findOne({ "payment.razorpayOrderId": razorpayOrderId });
+}
+
+export async function attachRazorpayOrder(userId: string, orderId: string, razorpayOrderId: string) {
+  await ensureDatabase();
+  const db = await collections();
+  const order = await db.orders.findOne({ id: orderId, userId });
+  if (!order) return null;
+  if (order.payment?.razorpayOrderId) return order;
+  await db.orders.updateOne(
+    { id: orderId, userId, "payment.razorpayOrderId": { $exists: false } },
+    { $set: { "payment.razorpayOrderId": razorpayOrderId, "payment.provider": "razorpay", updatedAt: new Date() } }
+  );
+  return db.orders.findOne({ id: orderId, userId });
+}
+
+export async function claimProcessedWebhook(eventId: string) {
+  await ensureDatabase();
+  try {
+    await (await collections()).processedWebhooks.insertOne({ eventId, processedAt: new Date() });
+    return true;
+  } catch (error) {
+    if (typeof error === "object" && error && "code" in error && error.code === 11000) return false;
+    throw error;
+  }
+}
+
+export async function claimInvoiceSend(orderId: string) {
+  await ensureDatabase();
+  try {
+    await (await collections()).invoiceSends.insertOne({ orderId, createdAt: new Date() });
+    return true;
+  } catch (error) {
+    if (typeof error === "object" && error && "code" in error && error.code === 11000) return false;
+    throw error;
+  }
 }
 
 export async function getAdminData() {

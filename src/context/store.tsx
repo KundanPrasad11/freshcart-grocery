@@ -27,7 +27,7 @@ export type Order = {
     instructions?: string;
     slot: { id: string; label: string; startsAt: string; endsAt: string; timezone: string };
   };
-  payment?: { provider: "stripe"; status: "pending" | "paid" | "failed" | "refund_pending" | "refunded" };
+  payment?: { provider: "razorpay" | "stripe" | "dummy"; status: "pending" | "paid" | "failed" | "refund_pending" | "refunded" };
   fulfillmentStatus?: "awaiting_payment" | "processing" | "packed" | "out_for_delivery" | "delivered" | "cancelled";
   statusHistory?: { from: string | null; to: string; at: string; actor: string; reason?: string }[];
   reservation?: { status: "active" | "released" | "expired" | "consumed"; expiresAt?: string };
@@ -158,7 +158,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const body = await response.json();
         if (!response.ok) return body.error ?? "Could not cancel this order.";
         setState(body.state as ServerState);
-        return body.refundPending ? "Refund requested. The cancellation will finish once Stripe confirms it." : null;
+        return body.refundPending ? "Refund requested. The cancellation will finish once the payment provider confirms it." : null;
       },
       reorderOrder: async (orderId) => {
         const response = await fetch("/api/store", {
