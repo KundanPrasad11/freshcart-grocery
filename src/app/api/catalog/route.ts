@@ -1,6 +1,9 @@
 import { getCatalog } from "@/lib/store-repository";
 import { logError } from "@/lib/logger";
 
+// Database-backed catalogue data must not run during Vercel's static build.
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     return Response.json(await getCatalog(), {

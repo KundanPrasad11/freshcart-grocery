@@ -2,9 +2,18 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { useStore } from "@/context/store";
 
 export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={<section className="page">Loading payment status…</section>}>
+      <CheckoutSuccessContent />
+    </Suspense>
+  );
+}
+
+function CheckoutSuccessContent() {
   const orderId = useSearchParams().get("order");
   const { orders } = useStore();
   const order = orders.find((candidate) => candidate.id === orderId);
